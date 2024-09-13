@@ -32,7 +32,8 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        $employees = Employee::with('subordinates', 'supervisor')->where('id', '<>', $employee->id)->take(15)->get();
+        $employees = $employee::where('id', '<>', $employee->id)->take(15)->get();
+        dd($employees->toArray());
         return (new EmployeeResource($employees, $employee))->resolve();
     }
 
@@ -41,8 +42,6 @@ class EmployeeController extends Controller
      */
     public function update(EmployeeUpdateRequest $request, int $id)
     {
-
-
         $validatedData = $request->validated();
         $employee = Employee::findOrFail($id);
         $employee->update($validatedData);
@@ -62,6 +61,8 @@ class EmployeeController extends Controller
         } else {
             $employee->subordinates()->detach();
         }
+
+
 
         return response()->json([
             'message' => 'Employee updated successfully!',
