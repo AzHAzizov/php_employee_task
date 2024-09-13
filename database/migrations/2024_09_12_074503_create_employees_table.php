@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('position');
             $table->string('email')->unique();
-            $table->string('phone_home')->nullable();
+            $table->string('phone_home');
             $table->text('notes')->nullable();
-            $table->foreignId('supervisor_id')->nullable()->constrained('employees')->onDelete('set null');
+            $table->foreignId('supervisor_id')->nullable()->constrained('employees'); // Руководитель
             $table->timestamps();
         });
         

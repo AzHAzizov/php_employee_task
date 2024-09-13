@@ -19,15 +19,13 @@ class Employee extends Model
         'supervisor_id'
     ];
 
-    // Получить подчиненных сотрудника
-    public function subordinates()
-    {
-        return $this->hasMany(Employee::class, 'supervisor_id');
-    }
-
-    // Получить начальника сотрудника
     public function supervisor()
     {
         return $this->belongsTo(Employee::class, 'supervisor_id');
+    }
+
+    public function subordinates()
+    {
+        return $this->belongsToMany(Employee::class, 'employee_subordinate', 'employee_id', 'subordinate_id');
     }
 }
