@@ -21,10 +21,16 @@ class EmployeeResource extends JsonResource
             $subordinates = [];
             $others = [];
 
+            // Получаем всех подчинённых текущего сотрудника
+            $employeeSubordinates = $this->employee->subordinates->pluck('id')->toArray();
+            
+            // Получаем руководителя текущего сотрудника
+            $employeeSupervisor = $this->employee->supervisor->pluck('id')->toArray();
+
             foreach ($this->collection as $employee) {
-                if ($employee->supervisor_id == $currentUserId) {
+                if (in_array($employee->id, $employeeSubordinates)) {
                     $subordinates[] = $employee;
-                } elseif ($employee->id == $this->employee->supervisor_id) {
+                } elseif (in_array($employee->id, $employeeSupervisor)) {
                     $supervisors[] = $employee;
                 } else {
                     $others[] = $employee;
@@ -41,4 +47,5 @@ class EmployeeResource extends JsonResource
         return [];
     }
 }
+
 

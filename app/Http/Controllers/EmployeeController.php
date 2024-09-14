@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EmployeeStoreRequest;
 use App\Http\Requests\EmployeeUpdateRequest;
 use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\EmployeesResource;
@@ -15,7 +16,7 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employees = Employee::with(['subordinates', 'supervisor'])->take(15)->get();
+        $employees = Employee::with(['subordinates', 'supervisor'])->get();
 
         return inertia('Employees', [
             'employees' => EmployeesResource::collection($employees)->resolve() // EmployeeResource, если исправить название
@@ -25,15 +26,44 @@ class EmployeeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(EmployeeStoreRequest $request) {
+
+        $validatedData = $request->validated();
+        $employee = Employee::create($validatedData);
+        $employee->update($validatedData);
+        
+
+
+        if (!empty($validatedData['supervisor'])) {
+            $supervisor = $validatedData['supervisor'][0]; // Предполагается, что только один руководитель
+
+            $employee->supervisor()->detach();
+            $employee->supervisor()->attach($supervisor['id']);
+        } else {
+            $employee->supervisor()->detach();
+        }
+        
+        if (!empty($validatedData['subordinates'])) {
+            $subordinateIds = array_column($validatedData['subordinates'], 'id');
+            $employee->subordinates()->sync($subordinateIds);
+        } else {
+            $employee->subordinates()->detach();
+        }
+
+
+        
+        return response()->json([
+            'message' => 'Employee created successfully!',
+            'employee' => $employee,
+        ], 200);
+    }
 
     /**
      * Display the specified resource.
      */
     public function show(Employee $employee)
     {
-        $employees = $employee::where('id', '<>', $employee->id)->take(15)->get();
-        dd($employees->toArray());
+        $employees = Employee::where('id', '<>', $employee->id)->get();
         return (new EmployeeResource($employees, $employee))->resolve();
     }
 
@@ -45,16 +75,17 @@ class EmployeeController extends Controller
         $validatedData = $request->validated();
         $employee = Employee::findOrFail($id);
         $employee->update($validatedData);
-
+        
+        // Обновляем руководителя
         if (!empty($validatedData['supervisor'])) {
             $supervisor = $validatedData['supervisor'][0]; // Предполагается, что только один руководитель
-            $employee->supervisor_id = $supervisor['id'];
-            $employee->save();
-        } else {
-            $employee->supervisor_id = null;
-            $employee->save();
-        }
 
+            $employee->supervisor()->detach();
+            $employee->supervisor()->attach($supervisor['id']);
+        } else {
+            $employee->supervisor()->detach();
+        }
+        
         if (!empty($validatedData['subordinates'])) {
             $subordinateIds = array_column($validatedData['subordinates'], 'id');
             $employee->subordinates()->sync($subordinateIds);
@@ -63,7 +94,7 @@ class EmployeeController extends Controller
         }
 
 
-
+        
         return response()->json([
             'message' => 'Employee updated successfully!',
             'employee' => $employee,
@@ -82,7 +113,7 @@ class EmployeeController extends Controller
 
     public function make()
     {
-        $employees = Employee::with('subordinates', 'supervisor')->take(15)->get();
+        $employees = Employee::with('subordinates', 'supervisor')->get();
         return [
             'supervisors' => EmployeesResource::collection([]),
             'subordinates' => EmployeesResource::collection([]),

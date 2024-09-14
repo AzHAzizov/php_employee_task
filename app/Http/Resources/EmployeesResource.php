@@ -13,7 +13,14 @@ class EmployeesResource extends JsonResource
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
-    {
+    {   
+
+
+        if(empty($this->id)) {
+            return [];
+        }
+
+
         return [
             'id' => $this->id,
             'first_name' => $this->first_name,

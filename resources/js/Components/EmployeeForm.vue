@@ -33,7 +33,7 @@
     <div class="mb-4">
       <label class="tpo__label">Supervisor</label>
       <multiselect v-model="value.supervisor" :close-on-select="false" tag-placeholder="Add this as new tag"
-        placeholder="Search or add a tag" label="first_name" track-by="id" :max="1" :options="localSupervisors" :multiple="true"
+        placeholder="Search or add a tag" label="first_name" track-by="id" :max="1" :options="localSupervisor" :multiple="true"
         :taggable="true" @select="addSupervisor" ></multiselect>
     </div> 
     <div class="mb-4">
@@ -65,7 +65,7 @@ export default {
       type: Object,
       default: () => null
     }, 
-    supervisors: {
+    supervisor: {
       type: Object,
       default: () => null
     }, 
@@ -99,27 +99,26 @@ export default {
         email: '',
         phone_home: '',
         notes: '',
-        supervisor_id: null
+        subordinates: null,
+        supervisor: null
       },
       value: {
         subordinates: [],
         supervisor: [],
       },
       localSubordinates: [],
-      localSupervisors: [],
+      localSupervisor: [],
       errors: {},
     };
   },
   methods: {
-    dispatchAction(data) {
-      console.log(data)
-    },
     submitForm() {
+
+      this.form.subordinates = this.value.subordinates;
+      this.form.supervisor = this.value.supervisor;
+
+
       if (this.edit) {
-
-        this.form.subordinates = this.value.subordinates;
-        this.form.supervisor = this.value.supervisor;
-
         axios.put(`/employees/${this.form.id}`, this.form)
           .then(res => {
             this.$emit('employee-updated', res.data);
@@ -129,7 +128,7 @@ export default {
       } else {
         axios.post('/employees', this.form)
           .then(res => {
-            this.$emit('employee-created', res.data);
+            this.$emit('employee-created', res.data.employee);
             this.resetForm();
           })
           .catch(this.handleErrors);
@@ -153,7 +152,7 @@ export default {
       this.edit = false;
     },
     addSubordinates(newTag) {
-      this.localSupervisors = this.localSupervisors.filter(item => item !== newTag);
+      this.localSupervisor = this.localSupervisor.filter(item => item !== newTag);
     },
     addSupervisor(newTag) {
       this.localSubordinates = this.localSubordinates.filter(item => item !== newTag);
@@ -163,8 +162,30 @@ export default {
     if(this.edit) {
       this.form = this.employee;
     }
-    this.localSubordinates =  this.subordinates.concat(this.others);
-    this.localSupervisors =  this.supervisors.concat(this.others);
+
+
+    if(this.subordinates) {
+      this.value.subordinates = this.subordinates;
+      this.localSubordinates =  this.others.concat(this.subordinates);
+    }else {
+      this.localSubordinates =  this.others;
+    }
+
+
+    if(this.supervisor) {
+      this.value.supervisor = this.supervisor;
+      this.localSupervisor =  this.others.concat(this.supervisor);
+    }else {
+      this.localSupervisor =  this.others;
+    }
+    
+
+
+
+    // console.table(this.value.subordinates)
+    // console.table(this.value.supervisor)
+    // console.table(this.localSubordinates)
+    // console.table(this.localSupervisor)
   }
 };
 

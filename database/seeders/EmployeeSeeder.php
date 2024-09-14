@@ -10,18 +10,18 @@ class EmployeeSeeder extends Seeder
 {
     public function run()
     {
-        $employees = Employee::factory(10000)->create();
+        $employees = Employee::factory(15)->create();
 
-        foreach ($employees as $employee) {
-            $supervisor = $employees->random();
-            if ($supervisor->id !== $employee->id) {
-                $updates[] = [
-                    'id' => $employee->id,
-                    'supervisor_id' => $supervisor->id,
-                ];
-            }
-        }
+        // foreach ($employees as $employee) {
+        //     $supervisor = $employees->random();
+        //     if ($supervisor->id !== $employee->id) {
+        //         $updates[] = [
+        //             'id' => $employee->id,
+        //             'supervisor_id' => $supervisor->id,
+        //         ];
+        //     }
+        // }
         
-        DB::table('employees')->upsert($updates, ['id'], ['supervisor_id']);
+        // DB::table('employees')->upsert($updates, ['id'], ['supervisor_id']);
     }
 }

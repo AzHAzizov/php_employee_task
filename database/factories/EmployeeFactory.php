@@ -21,8 +21,6 @@ class EmployeeFactory extends Factory
             'email' => $this->faker->unique()->safeEmail,
             'phone_home' => $this->faker->phoneNumber,
             'notes' => $this->faker->sentence,
-            // supervisor_id будет добавлен в другом шаге
-            'supervisor_id' => null,  // Будет установлено после создания
         ];
     }
 }

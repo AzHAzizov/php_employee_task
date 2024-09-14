@@ -16,16 +16,16 @@ class Employee extends Model
         'email',
         'phone_home',
         'notes',
-        'supervisor_id'
     ];
 
     public function supervisor()
     {
-        return $this->belongsTo(Employee::class, 'supervisor_id');
+        return $this->belongsToMany(Employee::class, 'employee_subordinate', 'subordinate_id', 'supervisor_id');
     }
-
+    
     public function subordinates()
     {
-        return $this->belongsToMany(Employee::class, 'employee_subordinate', 'employee_id', 'subordinate_id');
+        return $this->belongsToMany(Employee::class, 'employee_subordinate', 'supervisor_id', 'subordinate_id');
     }
+    
 }

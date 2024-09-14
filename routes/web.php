@@ -7,5 +7,5 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::resource('employees', EmployeeController::class);
 Route::get('employees/make', [EmployeeController::class, 'make']);
+Route::resource('employees', EmployeeController::class);
