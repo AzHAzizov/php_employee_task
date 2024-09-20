@@ -7,6 +7,8 @@ use App\Http\Requests\EmployeeUpdateRequest;
 use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\EmployeesResource;
 use App\Models\Employee;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -17,7 +19,6 @@ class EmployeeController extends Controller
     public function index()
     {
         $employees = Employee::with(['subordinates', 'supervisor'])->get();
-
         return inertia('Employees', [
             'employees' => EmployeesResource::collection($employees)->resolve() // EmployeeResource, если исправить название
         ]);
@@ -106,7 +107,13 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $employee = Employee::findOrFail($id);
+            $employee->delete();
+            return response()->json(['status' => 'success', 'message' => 'Employee removed success']);
+        }catch(ModelNotFoundException $e) {
+            return response()->json(['status' => 'error', 'message' => 'Employee cound not found']);
+        }
     }
 
 
