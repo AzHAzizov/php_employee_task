@@ -126,9 +126,13 @@ export default {
           })
           .catch(this.handleErrors);
       } else {
+
+    
+
         axios.post('/employees', this.form)
           .then(res => {
-            this.$emit('employee-created', res.data.employee);
+            console.log(res)
+            this.$emit('employee-created', res.data.employee[0]);
             this.resetForm();
           })
           .catch(this.handleErrors);
